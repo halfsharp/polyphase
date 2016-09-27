@@ -22,7 +22,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	long frameIdDelta = 0;
 	int xPos = 0;
 	int yPos = 0;
-	long updateInterval = 12;
+	long updateInterval = 10;
 	int subStep;
 	boolean drawReady;
 	int xPosPrev;
