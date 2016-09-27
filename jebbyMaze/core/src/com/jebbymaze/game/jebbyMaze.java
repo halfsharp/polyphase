@@ -59,53 +59,20 @@ public class jebbyMaze extends ApplicationAdapter {
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-        // We will use the default LibGdx logo for this example, but we need a 
-        //sprite since it's going to move
         img = new Texture("wall1.jpg");
         img2 = new Texture("jeb_cropped.jpg");
         sprite = new Sprite(img);
         sprite2 = new Sprite(img2);
  		
-        // Center the sprite in the top/middle of the screen
-        sprite.setPosition(0,
-                Gdx.graphics.getHeight() / 2);
-        sprite2.setPosition(100,0);
-        // Create a physics world, the heart of the simulation.  The Vector 
-        //passed in is gravity
         world = new World(new Vector2(0, 0), true);
  
-        // Now create a BodyDefinition.  This defines the physics objects type 
-        //and position in the simulation
-        BodyDef bodyDef = new BodyDef();
-        BodyDef bodyDef2 = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef2.type = BodyDef.BodyType.DynamicBody;
-        // We are going to use 1 to 1 dimensions.  Meaning 1 in physics engine 
-        //is 1 pixel
-        // Set our body to the same position as our sprite
-        bodyDef.position.set(sprite.getX(), sprite.getY());
-        bodyDef2.position.set(sprite2.getX(), sprite2.getY());
- 
-        // Create a body in the world using our definition
-        body = world.createBody(bodyDef);
-        body2 = world.createBody(bodyDef2);
  
 	}
 
 	@Override
 	public void render () {
-		// Advance the world, by the amount of time that has elapsed since the 
-        //last frame
-        // Generally in a real game, dont do this in the render loop, as you are 
-        //tying the physics
-        // update rate to the frame rate, and vice versa
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
  
-        // Now update the spritee position accordingly to it's now updated 
-        //Physics body
-        sprite.setPosition(body.getPosition().x, body.getPosition().y);
- 
-        // You know the rest...
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
@@ -117,8 +84,6 @@ public class jebbyMaze extends ApplicationAdapter {
         //System.out.println(xAxisSize);
 
         drawReady=drawField(fieldMatrix,xPos,yPos,xAxisSize,yAxisSize);
-        //if (drawReady) {System.out.println("true");}
-        //else {System.out.println("false");}
         //System.out.println(Gdx.graphics.getFrameId()); 
         //System.out.println(xPos + "  : xPos");  
         if((Gdx.input.isKeyPressed(Keys.LEFT)) && drawReady) {
