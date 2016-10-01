@@ -31,7 +31,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	int xPosPrev;
 	int yPosPrev;
   int direction=1;
-  int mazeDifficulty=13;
+  int mazeDifficulty=30; // maze size really
   int mazeSize=(mazeDifficulty*2)+1;
 	int[][] fieldMatrix = new int[mazeSize][mazeSize];
     
@@ -62,23 +62,32 @@ public class jebbyMaze extends ApplicationAdapter {
     int interations=0;
     long rand;
     int availableNeighbours=0;
+    int historyStackIndexBest=0;
+    int historyStackIndexDec=15; // this dictates how far back through the stack to go when reaching a dead end. The larger, the more tricky the maze
     mazeLenY=fieldMatrix.length;
     mazeLenX=fieldMatrix[0].length;    
     System.out.println(mazeLenX);
     System.out.println(mazeLenY);
     createSpace();
     fieldMatrix[1][1]=2;
-    while (isFieldComplete(mazeLenX,mazeLenY) && interations<3000) {
+    while (isFieldComplete(mazeLenX,mazeLenY) && interations<4000) {
       System.out.println("====================");
       rand = Math.round((Math.random() * 3) + 1);
       System.out.println(rand + " rand");
       System.out.println(historyStackIndex + "  historyStackIndex");
+      System.out.println(historyStackIndexBest + "  historyStackIndexBest");
+      System.out.println(historyStackIndexDec + "  historyStackIndexDec");
       System.out.println(matrixXPosition + "  matrixXPosition");
       System.out.println(matrixYPosition + "  matrixYPosition");
       System.out.println(interations + "  interations");
       interations++;
       availableNeighbours=hasEmptyNeighbour(matrixYPosition,matrixXPosition,mazeLenX,mazeLenY);
       System.out.println(availableNeighbours + "  availableNeighbours");
+      
+      // Log the highest point on the stack
+      if (historyStackIndex > historyStackIndexBest) {
+        historyStackIndexBest = historyStackIndex;
+      }
       if (availableNeighbours != 0) {
         if ((rand==1) && ((availableNeighbours & 1)==1)){ //right
           if (matrixXPosition < (mazeLenX-1)){
@@ -90,11 +99,6 @@ public class jebbyMaze extends ApplicationAdapter {
               yHistory[historyStackIndex]=matrixYPosition;
               matrixXPosition=matrixXPosition+2;
               historyStackIndex++;
-            }
-            else {
-              historyStackIndex=historyStackIndex-1;
-              matrixXPosition=xHistory[historyStackIndex-2];
-              matrixYPosition=yHistory[historyStackIndex-2];
             }
           }
         }
@@ -109,11 +113,6 @@ public class jebbyMaze extends ApplicationAdapter {
               matrixXPosition=matrixXPosition-2;
               historyStackIndex++;
             }
-            else {
-              historyStackIndex=historyStackIndex-1;
-              matrixXPosition=xHistory[historyStackIndex-2];
-              matrixYPosition=yHistory[historyStackIndex-2];
-            }
           }
         }
         else if ((rand==3) && ((availableNeighbours & 4)==4)){ //up
@@ -126,11 +125,6 @@ public class jebbyMaze extends ApplicationAdapter {
               yHistory[historyStackIndex]=matrixYPosition;
               matrixYPosition=matrixYPosition-2;
               historyStackIndex++;
-            }
-            else {
-              historyStackIndex=historyStackIndex-1;
-              matrixXPosition=xHistory[historyStackIndex-2];
-              matrixYPosition=yHistory[historyStackIndex-2];
             }
           }
         }
@@ -145,26 +139,25 @@ public class jebbyMaze extends ApplicationAdapter {
               matrixYPosition=matrixYPosition+2;
               historyStackIndex++;
             }
-            else {
-              historyStackIndex=historyStackIndex-1;
-              matrixXPosition=xHistory[historyStackIndex-2];
-              matrixYPosition=yHistory[historyStackIndex-2];
-              }
           }
         }
       }
-      else{
-        matrixXPosition=xHistory[historyStackIndex-1];
-        matrixYPosition=yHistory[historyStackIndex-1];
-        if (historyStackIndex > 5) {
-          historyStackIndex = historyStackIndex - 4;
+      else{ // else no available neighbours then move the stack pointer
+        if (historyStackIndex > historyStackIndexDec) {
+          historyStackIndex = historyStackIndex - historyStackIndexDec;
         }
         else if (historyStackIndex > 1) {
           historyStackIndex = historyStackIndex - 1;
         }
         else {
-          historyStackIndex = historyStackIndex;
+          historyStackIndex = historyStackIndexBest;
+          if (historyStackIndexDec > 1) {
+            historyStackIndexDec = historyStackIndexDec - 1;
+          }
         }
+        System.out.println(historyStackIndex + "  historyStackIndex New");
+        matrixXPosition=xHistory[historyStackIndex-1];
+        matrixYPosition=yHistory[historyStackIndex-1];
       }
 
     }   
