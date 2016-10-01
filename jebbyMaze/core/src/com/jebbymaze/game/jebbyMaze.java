@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
 public class jebbyMaze extends ApplicationAdapter {
+  //while (!Gdx.input.isKeyPressed(Keys.RIGHT)) {}
 	SpriteBatch batch;
 	Sprite sprite;
 	Sprite sprite2;
@@ -30,7 +31,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	int xPosPrev;
 	int yPosPrev;
   int direction=1;
-  int mazeDifficulty=40;
+  int mazeDifficulty=13;
   int mazeSize=(mazeDifficulty*2)+1;
 	int[][] fieldMatrix = new int[mazeSize][mazeSize];
     
@@ -74,6 +75,7 @@ public class jebbyMaze extends ApplicationAdapter {
       System.out.println(historyStackIndex + "  historyStackIndex");
       System.out.println(matrixXPosition + "  matrixXPosition");
       System.out.println(matrixYPosition + "  matrixYPosition");
+      System.out.println(interations + "  interations");
       interations++;
       availableNeighbours=hasEmptyNeighbour(matrixYPosition,matrixXPosition,mazeLenX,mazeLenY);
       System.out.println(availableNeighbours + "  availableNeighbours");
@@ -154,7 +156,15 @@ public class jebbyMaze extends ApplicationAdapter {
       else{
         matrixXPosition=xHistory[historyStackIndex-1];
         matrixYPosition=yHistory[historyStackIndex-1];
-        historyStackIndex = historyStackIndex - 1;
+        if (historyStackIndex > 5) {
+          historyStackIndex = historyStackIndex - 4;
+        }
+        else if (historyStackIndex > 1) {
+          historyStackIndex = historyStackIndex - 1;
+        }
+        else {
+          historyStackIndex = historyStackIndex;
+        }
       }
 
     }   
@@ -171,8 +181,8 @@ public class jebbyMaze extends ApplicationAdapter {
 	
 	public boolean isFieldComplete(int mazeLenX, int mazeLenY){
   	boolean emptyBlockFound = false;
-    for (int x=1;x<((mazeLenX-1)/2);x++){
-      for (int y=1;y<((mazeLenY-1)/2);y++){
+    for (int x=1;x<((mazeLenX-1));x++){
+      for (int y=1;y<((mazeLenY-1));y++){
         if (fieldMatrix[x][y]==0) {
           emptyBlockFound=true;
         }    
@@ -210,8 +220,9 @@ public class jebbyMaze extends ApplicationAdapter {
 	}
 	
 	public void createSpace(){
-    for (int x=0;x<(mazeSize-1);x++){
-      for (int y=0;y<(mazeSize-1);y++){
+    for (int x=0;x<=(mazeSize-1);x++){
+      System.out.println();
+      for (int y=0;y<=(mazeSize-1);y++){
         if ((y&1)==0){
           fieldMatrix[y][x]=1;
         }
