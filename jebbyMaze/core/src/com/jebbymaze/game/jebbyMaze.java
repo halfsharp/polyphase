@@ -22,8 +22,8 @@ public class jebbyMaze extends ApplicationAdapter {
 	Body body;
 	Body body2;
 	long frameIdDelta = 0;
-	int xPos = 0;
-	int yPos = 0;
+	int xPos = 1;
+	int yPos = 1;
 	long updateInterval = 10;
 	int subStep;
 	boolean drawReady;
@@ -80,8 +80,8 @@ public class jebbyMaze extends ApplicationAdapter {
     int matrixXPosition=1;
     int matrixYPosition=1;
     int historyStackIndex=0;
-    int [] xHistory;
-    int [] yHistory;
+    int [] xHistory = new int [1000];
+    int [] yHistory = new int [1000];
     int interations=0;
     long rand;
     int availableNeighbours=0;
@@ -90,63 +90,96 @@ public class jebbyMaze extends ApplicationAdapter {
     System.out.println(mazeLenX);
     System.out.println(mazeLenY);
     fieldMatrix[1][1]=2;
-    while (isFieldComplete(mazeLenX,mazeLenY) && interations<20) {
+    while (isFieldComplete(mazeLenX,mazeLenY) && interations<900) {
+      System.out.println("====================");
       rand = Math.round((Math.random() * 3) + 1);
       System.out.println(rand + " rand");
       System.out.println(historyStackIndex + "  historyStackIndex");
       System.out.println(matrixXPosition + "  matrixXPosition");
       System.out.println(matrixYPosition + "  matrixYPosition");
-      System.out.println("====================");
       interations++;
       availableNeighbours=hasEmptyNeighbour(matrixYPosition,matrixXPosition,mazeLenX,mazeLenY);
       System.out.println(availableNeighbours + "  availableNeighbours");
-      if (rand==1){ //right
-        if (matrixXPosition < (mazeLenX-1)){
-          if (fieldMatrix[matrixYPosition][matrixXPosition+2]==0) {
-            fieldMatrix[matrixYPosition][matrixXPosition+2]=2;
-            fieldMatrix[matrixYPosition][matrixXPosition+1]=2;
-            //xHistory[historyStackIndex]=matrixXPosition;
-            //yHistory[historyStackIndex]=matrixYPosition;
-            matrixXPosition=matrixXPosition+2;
-            historyStackIndex++;
+      if (availableNeighbours != 0) {
+        if ((rand==1) && ((availableNeighbours & 1)==1)){ //right
+          if (matrixXPosition < (mazeLenX-1)){
+            if (fieldMatrix[matrixYPosition][matrixXPosition+2]==0) {
+              System.out.println("  Going right");
+              fieldMatrix[matrixYPosition][matrixXPosition+2]=2;
+              fieldMatrix[matrixYPosition][matrixXPosition+1]=2;
+              xHistory[historyStackIndex]=matrixXPosition;
+              yHistory[historyStackIndex]=matrixYPosition;
+              matrixXPosition=matrixXPosition+2;
+              historyStackIndex++;
+            }
+            else {
+              historyStackIndex=historyStackIndex-1;
+              matrixXPosition=xHistory[historyStackIndex-2];
+              matrixYPosition=yHistory[historyStackIndex-2];
+            }
           }
-          else {
-            historyStackIndex=historyStackIndex-1;
-            //matrixXPosition=xHistory[historyStackIndex];
-            //matrixYPosition=yHistory[historyStackIndex];
+        }
+        else if ((rand==2) && ((availableNeighbours & 2)==2)){ //left
+          if (matrixXPosition > 2){
+            if (fieldMatrix[matrixYPosition][matrixXPosition-2]==0) {
+              System.out.println("  Going left");
+              fieldMatrix[matrixYPosition][matrixXPosition-2]=2;
+              fieldMatrix[matrixYPosition][matrixXPosition-1]=2;
+              xHistory[historyStackIndex]=matrixXPosition;
+              yHistory[historyStackIndex]=matrixYPosition;
+              matrixXPosition=matrixXPosition-2;
+              historyStackIndex++;
+            }
+            else {
+              historyStackIndex=historyStackIndex-1;
+              matrixXPosition=xHistory[historyStackIndex-2];
+              matrixYPosition=yHistory[historyStackIndex-2];
+            }
+          }
+        }
+        else if ((rand==3) && ((availableNeighbours & 4)==4)){ //up
+          if (matrixYPosition > 2){
+            if (fieldMatrix[matrixYPosition-2][matrixXPosition]==0) {
+              System.out.println("  Going up");
+              fieldMatrix[matrixYPosition-2][matrixXPosition]=2;
+              fieldMatrix[matrixYPosition-1][matrixXPosition]=2;
+              xHistory[historyStackIndex]=matrixXPosition;
+              yHistory[historyStackIndex]=matrixYPosition;
+              matrixYPosition=matrixYPosition-2;
+              historyStackIndex++;
+            }
+            else {
+              historyStackIndex=historyStackIndex-1;
+              matrixXPosition=xHistory[historyStackIndex-2];
+              matrixYPosition=yHistory[historyStackIndex-2];
+            }
+          }
+        }
+        else if ((rand==4) && ((availableNeighbours & 8)==8)){ //down
+          if (matrixXPosition < (mazeLenX-1)){
+            if (fieldMatrix[matrixYPosition+2][matrixXPosition]==0) {
+              System.out.println("  Going down");
+              fieldMatrix[matrixYPosition+2][matrixXPosition]=2;
+              fieldMatrix[matrixYPosition+1][matrixXPosition]=2;
+              xHistory[historyStackIndex]=matrixXPosition;
+              yHistory[historyStackIndex]=matrixYPosition;
+              matrixYPosition=matrixYPosition+2;
+              historyStackIndex++;
+            }
+            else {
+              historyStackIndex=historyStackIndex-1;
+              matrixXPosition=xHistory[historyStackIndex-2];
+              matrixYPosition=yHistory[historyStackIndex-2];
+              }
           }
         }
       }
-      else if (rand==2){ //left
-        if (matrixXPosition > 2){
-          if (fieldMatrix[matrixYPosition][matrixXPosition-2]==0) {
-            fieldMatrix[matrixYPosition][matrixXPosition-2]=2;
-            fieldMatrix[matrixYPosition][matrixXPosition-1]=2;
-            matrixXPosition=matrixXPosition-2;
-            historyStackIndex++;
-          }
-        }
+      else{
+        matrixXPosition=xHistory[historyStackIndex-1];
+        matrixYPosition=yHistory[historyStackIndex-1];
+        historyStackIndex = historyStackIndex - 1;
       }
-      else if (rand==3){ //up
-        if (matrixYPosition > 2){
-          if (fieldMatrix[matrixYPosition-2][matrixXPosition]==0) {
-            fieldMatrix[matrixYPosition-2][matrixXPosition]=2;
-            fieldMatrix[matrixYPosition-1][matrixXPosition]=2;
-            matrixYPosition=matrixYPosition-2;
-            historyStackIndex++;
-          }
-        }
-      }
-      else if (rand==4){ //down
-        if (matrixXPosition < (mazeLenX-1)){
-          if (fieldMatrix[matrixYPosition+2][matrixXPosition]==0) {
-            fieldMatrix[matrixYPosition+2][matrixXPosition]=2;
-            fieldMatrix[matrixYPosition+1][matrixXPosition]=2;
-            matrixYPosition=matrixYPosition+2;
-            historyStackIndex++;
-          }
-        }
-      }
+
     }   
     for (int y=0;y<mazeLenY-1;y++){
       System.out.println(" ");
@@ -155,6 +188,7 @@ public class jebbyMaze extends ApplicationAdapter {
       }
       
     }
+    fieldMatrix[mazeLenY-2][mazeLenX-2]=3;
     
 	}
 	
@@ -173,7 +207,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	
 	public int hasEmptyNeighbour(int matrixYPosition, int matrixXPosition, int mazeLenX, int mazeLenY){
   	int availableNeighbours = 0;
-    if (matrixXPosition < (mazeLenX-1)){
+    if (matrixXPosition < (mazeLenX-2)){
       if (fieldMatrix[matrixYPosition][matrixXPosition+2]==0) {
         availableNeighbours = availableNeighbours + 1;
       }
@@ -188,7 +222,7 @@ public class jebbyMaze extends ApplicationAdapter {
         availableNeighbours = availableNeighbours + 4;
       }
     }
-    if (matrixXPosition < (mazeLenX-1)){
+    if (matrixYPosition < (mazeLenY-2)){
       if (fieldMatrix[matrixYPosition+2][matrixXPosition]==0) {
         availableNeighbours = availableNeighbours + 8;
       }
@@ -219,29 +253,29 @@ public class jebbyMaze extends ApplicationAdapter {
         if((Gdx.input.isKeyPressed(Keys.LEFT)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((xPos > 0) && (fieldMatrix[yPos][xPos-1] != 1)) {xPos=xPos-1;}
-                xPos=xPos-1;
+                if ((xPos > 0) && (fieldMatrix[yPos][xPos-1] != 1)) {xPos=xPos-1;}
+                //xPos=xPos-1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.RIGHT)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((xPos < fieldMatrix[0].length-1) && (fieldMatrix[yPos][xPos+1] != 1)) {xPos=xPos+1;}
-                xPos=xPos+1;
+                if ((xPos < fieldMatrix[0].length-1) && (fieldMatrix[yPos][xPos+1] != 1)) {xPos=xPos+1;}
+                //xPos=xPos+1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.UP)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((yPos > 0) && (fieldMatrix[yPos-1][xPos] != 1)) {yPos=yPos-1;}
-                yPos=yPos-1;
+                if ((yPos > 0) && (fieldMatrix[yPos-1][xPos] != 1)) {yPos=yPos-1;}
+                //yPos=yPos-1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.DOWN)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((yPos < fieldMatrix.length-1) && (fieldMatrix[yPos+1][xPos] != 1)) {yPos=yPos+1;}
-                yPos=yPos+1;
+                if ((yPos < fieldMatrix.length-1) && (fieldMatrix[yPos+1][xPos] != 1)) {yPos=yPos+1;}
+                //yPos=yPos+1;
             }
         }
         batch.end();
@@ -310,7 +344,7 @@ public class jebbyMaze extends ApplicationAdapter {
 		                batch.draw(sprite, ((x)*sprite.getWidth())-(subStep*(sprite.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite.getHeight()));
                     }    	                
                 }
-    			else if (fieldMatrix[yIndex][xIndex]==2){
+    			else if (fieldMatrix[yIndex][xIndex]==3){
     			    if (direction==1){
 		                batch.draw(sprite3, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
 	                }
