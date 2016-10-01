@@ -14,9 +14,11 @@ public class jebbyMaze extends ApplicationAdapter {
 	SpriteBatch batch;
 	Sprite sprite;
 	Sprite sprite2;
+	Sprite sprite3;
 	World world;
 	Texture img;
 	Texture img2;
+	Texture img3;
 	Body body;
 	Body body2;
 	long frameIdDelta = 0;
@@ -29,45 +31,173 @@ public class jebbyMaze extends ApplicationAdapter {
 	int yPosPrev;
     int direction=1;
 	int[][] fieldMatrix = new int[][]{
-		{0,0,1,0,1,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
-		{0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0},
-		{0,1,1,1,1,1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0},
-		{0,1,0,0,0,0,0,0,1,0,0,0,1,0,0,0,1,1,1,1,1,1,1,1,0,1,0,0,0,0,0},
-		{1,1,0,1,1,1,1,0,1,1,0,0,1,0,0,0,1,0,0,0,0,0,0,0,0,1,0,0,0,0,0},
-		{1,1,0,1,0,0,0,0,1,1,0,0,1,0,0,0,1,0,1,1,1,1,1,1,0,1,0,0,0,0,0},
-		{1,1,0,1,0,0,0,0,1,1,0,0,1,0,0,0,1,0,1,0,1,0,0,0,0,1,0,0,0,0,0},
-		{0,1,0,1,0,0,0,0,1,1,0,0,1,0,0,0,1,0,1,0,1,0,0,0,0,1,0,0,0,0,0},
-		{0,1,0,1,0,0,0,0,1,1,0,0,1,0,0,0,1,0,1,0,1,0,0,0,0,1,0,0,0,0,0},
-		{0,1,0,1,0,0,0,0,1,1,0,0,1,0,0,0,1,0,1,0,1,1,1,1,0,1,0,0,0,0,0},
-		{0,1,0,1,1,1,0,1,1,1,0,0,1,0,0,0,0,0,1,0,0,0,0,0,0,1,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,1,0,1,1,1,1,0,1,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,1,1,1,1,0,1,0,0,1,0,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,0,0,0,0,1,0,0,1,0,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,1,1,1,1,0,0,1,0,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,0,0,0,0,0,0,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,1,1,1,1,1,1,1,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,0,0,0,0,0,0,0,1,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,1,0,1,1,1,1,0,0,0,0,1,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0},
-		{0,0,0,0,0,0,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+		{1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1},
+		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}
     };
     
 	@Override
 	public void create () {
 		batch = new SpriteBatch();
-        img = new Texture("wall1.jpg");
+        img3 = new Texture("archie.jpg");
         img2 = new Texture("jeb_cropped.jpg");
+        img = new Texture("wall1.jpg");
         sprite = new Sprite(img);
         sprite2 = new Sprite(img2);
+        sprite3 = new Sprite(img3);
  		
         world = new World(new Vector2(0, 0), true);
- 
+        createMaze();
+        System.out.println(fieldMatrix);
  
 	}
+	
+	public void createMaze(){
+    int mazeLenX;
+    int mazeLenY;
+    int matrixXPosition=1;
+    int matrixYPosition=1;
+    int historyStackIndex=0;
+    int [] xHistory;
+    int [] yHistory;
+    int interations=0;
+    long rand;
+    int availableNeighbours=0;
+    mazeLenY=fieldMatrix.length;
+    mazeLenX=fieldMatrix[0].length;    
+    System.out.println(mazeLenX);
+    System.out.println(mazeLenY);
+    fieldMatrix[1][1]=2;
+    while (isFieldComplete(mazeLenX,mazeLenY) && interations<20) {
+      rand = Math.round((Math.random() * 3) + 1);
+      System.out.println(rand + " rand");
+      System.out.println(historyStackIndex + "  historyStackIndex");
+      System.out.println(matrixXPosition + "  matrixXPosition");
+      System.out.println(matrixYPosition + "  matrixYPosition");
+      System.out.println("====================");
+      interations++;
+      availableNeighbours=hasEmptyNeighbour(matrixYPosition,matrixXPosition,mazeLenX,mazeLenY);
+      System.out.println(availableNeighbours + "  availableNeighbours");
+      if (rand==1){ //right
+        if (matrixXPosition < (mazeLenX-1)){
+          if (fieldMatrix[matrixYPosition][matrixXPosition+2]==0) {
+            fieldMatrix[matrixYPosition][matrixXPosition+2]=2;
+            fieldMatrix[matrixYPosition][matrixXPosition+1]=2;
+            //xHistory[historyStackIndex]=matrixXPosition;
+            //yHistory[historyStackIndex]=matrixYPosition;
+            matrixXPosition=matrixXPosition+2;
+            historyStackIndex++;
+          }
+          else {
+            historyStackIndex=historyStackIndex-1;
+            //matrixXPosition=xHistory[historyStackIndex];
+            //matrixYPosition=yHistory[historyStackIndex];
+          }
+        }
+      }
+      else if (rand==2){ //left
+        if (matrixXPosition > 2){
+          if (fieldMatrix[matrixYPosition][matrixXPosition-2]==0) {
+            fieldMatrix[matrixYPosition][matrixXPosition-2]=2;
+            fieldMatrix[matrixYPosition][matrixXPosition-1]=2;
+            matrixXPosition=matrixXPosition-2;
+            historyStackIndex++;
+          }
+        }
+      }
+      else if (rand==3){ //up
+        if (matrixYPosition > 2){
+          if (fieldMatrix[matrixYPosition-2][matrixXPosition]==0) {
+            fieldMatrix[matrixYPosition-2][matrixXPosition]=2;
+            fieldMatrix[matrixYPosition-1][matrixXPosition]=2;
+            matrixYPosition=matrixYPosition-2;
+            historyStackIndex++;
+          }
+        }
+      }
+      else if (rand==4){ //down
+        if (matrixXPosition < (mazeLenX-1)){
+          if (fieldMatrix[matrixYPosition+2][matrixXPosition]==0) {
+            fieldMatrix[matrixYPosition+2][matrixXPosition]=2;
+            fieldMatrix[matrixYPosition+1][matrixXPosition]=2;
+            matrixYPosition=matrixYPosition+2;
+            historyStackIndex++;
+          }
+        }
+      }
+    }   
+    for (int y=0;y<mazeLenY-1;y++){
+      System.out.println(" ");
+      for (int x=0;x<mazeLenX-1;x++) {
+        System.out.print(fieldMatrix[y][x]);
+      }
+      
+    }
+    
+	}
+	
+	public boolean isFieldComplete(int mazeLenX, int mazeLenY){
+  	boolean emptyBlockFound = false;
+    for (int x=1;x<((mazeLenX-1)/2);x++){
+      for (int y=1;y<((mazeLenY-1)/2);y++){
+        if (fieldMatrix[x][y]==0) {
+          emptyBlockFound=true;
+        }    
+      } 
+    }
+    return emptyBlockFound;
+  	
+	}
+	
+	public int hasEmptyNeighbour(int matrixYPosition, int matrixXPosition, int mazeLenX, int mazeLenY){
+  	int availableNeighbours = 0;
+    if (matrixXPosition < (mazeLenX-1)){
+      if (fieldMatrix[matrixYPosition][matrixXPosition+2]==0) {
+        availableNeighbours = availableNeighbours + 1;
+      }
+    }
+    if (matrixXPosition > 2){
+      if (fieldMatrix[matrixYPosition][matrixXPosition-2]==0) {
+        availableNeighbours = availableNeighbours + 2;
+      }
+    }
+    if (matrixYPosition > 2){
+      if (fieldMatrix[matrixYPosition-2][matrixXPosition]==0) {
+        availableNeighbours = availableNeighbours + 4;
+      }
+    }
+    if (matrixXPosition < (mazeLenX-1)){
+      if (fieldMatrix[matrixYPosition+2][matrixXPosition]==0) {
+        availableNeighbours = availableNeighbours + 8;
+      }
+    }
+      
+    return availableNeighbours;
+  	
+	}
+	
 
 	@Override
 	public void render () {
@@ -89,25 +219,29 @@ public class jebbyMaze extends ApplicationAdapter {
         if((Gdx.input.isKeyPressed(Keys.LEFT)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                if ((xPos > 0) && (fieldMatrix[yPos][xPos-1] != 1)) {xPos=xPos-1;}
+                //if ((xPos > 0) && (fieldMatrix[yPos][xPos-1] != 1)) {xPos=xPos-1;}
+                xPos=xPos-1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.RIGHT)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                if ((xPos < fieldMatrix[0].length-1) && (fieldMatrix[yPos][xPos+1] != 1)) {xPos=xPos+1;}
+                //if ((xPos < fieldMatrix[0].length-1) && (fieldMatrix[yPos][xPos+1] != 1)) {xPos=xPos+1;}
+                xPos=xPos+1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.UP)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                if ((yPos > 0) && (fieldMatrix[yPos-1][xPos] != 1)) {yPos=yPos-1;}
+                //if ((yPos > 0) && (fieldMatrix[yPos-1][xPos] != 1)) {yPos=yPos-1;}
+                yPos=yPos-1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.DOWN)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                if ((yPos < fieldMatrix.length-1) && (fieldMatrix[yPos+1][xPos] != 1)) {yPos=yPos+1;}
+                //if ((yPos < fieldMatrix.length-1) && (fieldMatrix[yPos+1][xPos] != 1)) {yPos=yPos+1;}
+                yPos=yPos+1;
             }
         }
         batch.end();
@@ -174,6 +308,20 @@ public class jebbyMaze extends ApplicationAdapter {
 	                }
 	                else {
 		                batch.draw(sprite, ((x)*sprite.getWidth())-(subStep*(sprite.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite.getHeight()));
+                    }    	                
+                }
+    			else if (fieldMatrix[yIndex][xIndex]==2){
+    			    if (direction==1){
+		                batch.draw(sprite3, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+	                }
+    			    else if (direction==2){
+        			    batch.draw(sprite3, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())-(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+    			    else if (direction==-2){
+		                batch.draw(sprite3, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())+(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+	                else {
+		                batch.draw(sprite3, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
                     }    	                
                 }
 			}
