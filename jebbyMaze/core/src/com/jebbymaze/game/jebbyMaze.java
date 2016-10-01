@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
+
 public class jebbyMaze extends ApplicationAdapter {
   //while (!Gdx.input.isKeyPressed(Keys.RIGHT)) {}
 	SpriteBatch batch;
@@ -31,9 +32,13 @@ public class jebbyMaze extends ApplicationAdapter {
 	int xPosPrev;
 	int yPosPrev;
   int direction=1;
-  int mazeDifficulty=30; // maze size really
+  int mazeDifficulty=5; // maze size really
   int mazeSize=(mazeDifficulty*2)+1;
 	int[][] fieldMatrix = new int[mazeSize][mazeSize];
+    int[] xHistory = new int [1000];
+    int[] yHistory = new int [1000];
+    private int[] solutionTreeX = new int [1000];
+    private int[] solutionTreeY = new int [1000];
     
 	@Override
 	public void create () {
@@ -57,15 +62,16 @@ public class jebbyMaze extends ApplicationAdapter {
     int matrixXPosition=1;
     int matrixYPosition=1;
     int historyStackIndex=0;
-    int [] xHistory = new int [1000];
-    int [] yHistory = new int [1000];
     int interations=0;
     long rand;
+    int solutionTreeLimit=0;
     int availableNeighbours=0;
     int historyStackIndexBest=0;
-    int historyStackIndexDec=15; // this dictates how far back through the stack to go when reaching a dead end. The larger, the more tricky the maze
+    int historyStackIndexDec=3; // this dictates how far back through the stack to go when reaching a dead end. The larger, the more tricky the maze
     mazeLenY=fieldMatrix.length;
-    mazeLenX=fieldMatrix[0].length;    
+    mazeLenX=fieldMatrix[0].length; 
+    solutionTreeX[0]=2;
+    solutionTreeY[0]=2;   
     System.out.println(mazeLenX);
     System.out.println(mazeLenY);
     createSpace();
@@ -142,29 +148,55 @@ public class jebbyMaze extends ApplicationAdapter {
           }
         }
       }
-      else{ // else no available neighbours then move the stack pointer
-        if (historyStackIndex > historyStackIndexDec) {
-          historyStackIndex = historyStackIndex - historyStackIndexDec;
-        }
-        else if (historyStackIndex > 1) {
-          historyStackIndex = historyStackIndex - 1;
-        }
-        else {
-          historyStackIndex = historyStackIndexBest;
-          if (historyStackIndexDec > 1) {
+      else { // else no available neighbours then move the stack pointer
+        //if (historyStackIndex > historyStackIndexDec) {
+          historyStackIndex = historyStackIndexDec;
+        //}
+        //else if (historyStackIndex > 1) {
+        //  historyStackIndex = historyStackIndex - 1;
+       // }
+        //else { //stack index == 1 so set it to the best index seen so far
+        //  historyStackIndex = historyStackIndexBest;
+          if (historyStackIndexDec > 1) { // reduce the step size to increase granularity to remove more walls
             historyStackIndexDec = historyStackIndexDec - 1;
           }
-        }
+        //}
         System.out.println(historyStackIndex + "  historyStackIndex New");
         matrixXPosition=xHistory[historyStackIndex-1];
         matrixYPosition=yHistory[historyStackIndex-1];
       }
-
+      //for(int i=0;i<20;i++){
+      //  System.out.println(xHistory[i]+"   "+yHistory[i]);
+      //}
+      
+      if ((matrixXPosition==(mazeLenX-2)) && (matrixYPosition==(mazeLenY-2))) {
+        System.out.println("latching ");
+        for (int i=0;i<999;i++){
+          solutionTreeX[i]=xHistory[i];
+          solutionTreeY[i]=yHistory[i];
+        }
+        solutionTreeLimit=historyStackIndex;
+        for(int i=0;i<solutionTreeLimit;i++){
+          System.out.println(solutionTreeX[i]+"   "+solutionTreeY[i]);
+        }
+      }
+      for(int i=0;i<solutionTreeLimit;i++){
+        System.out.println(solutionTreeX[i]+"   "+solutionTreeY[i]);
+      }
     }   
+    for(int i=0;i<solutionTreeLimit;i++){
+      System.out.println(solutionTreeX[i]+"   "+solutionTreeY[i]);
+    }
     for (int y=0;y<mazeLenY-1;y++){
       System.out.println(" ");
       for (int x=0;x<mazeLenX-1;x++) {
-        System.out.print(fieldMatrix[y][x]);
+        for (int z=0;z<(solutionTreeLimit);z++) {
+          if ((solutionTreeX[z]==x) && (solutionTreeY[z]==y)) {
+            fieldMatrix[y][x]=4;
+          }
+            
+        }
+      System.out.print(fieldMatrix[y][x]);
       }
       
     }
@@ -237,6 +269,7 @@ public class jebbyMaze extends ApplicationAdapter {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.begin();
+        //font.draw(game.batch, "Welcome to Drop!!! ", 100, 150);
         //batch.draw(sprite2, sprite2.getX(), sprite2.getY());
         //System.out.println(sprite.getHeight());
     	int xAxisSize = Math.round(Gdx.graphics.getWidth()/sprite.getWidth());
@@ -353,6 +386,20 @@ public class jebbyMaze extends ApplicationAdapter {
 	                }
 	                else {
 		                batch.draw(sprite3, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+                    }    	                
+                }
+    			else if (fieldMatrix[yIndex][xIndex]==4){
+    			    if (direction==1){
+		                batch.draw(sprite2, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+	                }
+    			    else if (direction==2){
+        			    batch.draw(sprite2, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())-(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+    			    else if (direction==-2){
+		                batch.draw(sprite2, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())+(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+	                else {
+		                batch.draw(sprite2, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
                     }    	                
                 }
 			}
