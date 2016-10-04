@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
+import com.badlogic.gdx.audio.Music;
 
 import java.util.concurrent.TimeUnit;
 
@@ -33,13 +34,15 @@ public class jebbyMaze extends ApplicationAdapter {
 	int xPosPrev;
 	int yPosPrev;
   int direction=1;
-  int mazeDifficulty=20; // maze size really
+  int mazeDifficulty=30; // maze size really
   int mazeSize=(mazeDifficulty*2)+1;
 	int[][] fieldMatrix = new int[mazeSize][mazeSize];
     int[] xHistory = new int [1000];
     int[] yHistory = new int [1000];
     private int[] solutionTreeX = new int [1000];
     private int[] solutionTreeY = new int [1000];
+  private Music rainMusic;
+    boolean helper=false;
     
 	@Override
 	public void create () {
@@ -53,7 +56,9 @@ public class jebbyMaze extends ApplicationAdapter {
  		
         createMaze();
         world = new World(new Vector2(0, 0), true);
- 
+        rainMusic = Gdx.audio.newMusic(Gdx.files.internal("09 Home.mp3"));
+        rainMusic.setLooping(true);
+        rainMusic.play();
 	}
 	
 	public void createMaze(){
@@ -303,7 +308,7 @@ public class jebbyMaze extends ApplicationAdapter {
         //System.out.println(yAxisSize);
         //System.out.println(xAxisSize);
 
-        drawReady=drawField(fieldMatrix,xPos,yPos,xAxisSize,yAxisSize);
+        drawReady=drawField(fieldMatrix,xPos,yPos,xAxisSize,yAxisSize,helper);
         //System.out.println(Gdx.graphics.getFrameId()); 
         //System.out.println(xPos + "  : xPos");  
         if((Gdx.input.isKeyPressed(Keys.LEFT)) && drawReady) {
@@ -334,10 +339,17 @@ public class jebbyMaze extends ApplicationAdapter {
                 //yPos=yPos+1;
             }
         }
+        if((Gdx.input.isKeyPressed(Keys.SPACE)) && drawReady) {
+            if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
+                frameIdDelta = Gdx.graphics.getFrameId();
+                helper=!helper;
+                //yPos=yPos+1;
+            }
+        }
         batch.end();
 	}
 	
-	public boolean drawField(int fieldMatrix[][], int xPos, int yPos, int xAxisSize, int yAxisSize) {
+	public boolean drawField(int fieldMatrix[][], int xPos, int yPos, int xAxisSize, int yAxisSize, boolean helper) {
     	int xAxisMin=xPos-(xAxisSize/2);
     	int yAxisMin=yPos-(yAxisSize/2);
     	if (xPosPrev != xPos) {
@@ -414,7 +426,7 @@ public class jebbyMaze extends ApplicationAdapter {
 		                batch.draw(sprite3, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
                     }    	                
                 }
-    			else if (fieldMatrix[yIndex][xIndex]==4){
+    			else if ((fieldMatrix[yIndex][xIndex]==4) && helper) {
     			    if (direction==1){
 		                batch.draw(sprite2, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
 	                }
