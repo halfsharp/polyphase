@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.*;
 
+import java.util.concurrent.TimeUnit;
 
 public class jebbyMaze extends ApplicationAdapter {
   //while (!Gdx.input.isKeyPressed(Keys.RIGHT)) {}
@@ -32,7 +33,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	int xPosPrev;
 	int yPosPrev;
   int direction=1;
-  int mazeDifficulty=5; // maze size really
+  int mazeDifficulty=20; // maze size really
   int mazeSize=(mazeDifficulty*2)+1;
 	int[][] fieldMatrix = new int[mazeSize][mazeSize];
     int[] xHistory = new int [1000];
@@ -50,9 +51,8 @@ public class jebbyMaze extends ApplicationAdapter {
         sprite2 = new Sprite(img2);
         sprite3 = new Sprite(img3);
  		
-        world = new World(new Vector2(0, 0), true);
         createMaze();
-        System.out.println(fieldMatrix);
+        world = new World(new Vector2(0, 0), true);
  
 	}
 	
@@ -64,6 +64,7 @@ public class jebbyMaze extends ApplicationAdapter {
     int historyStackIndex=0;
     int interations=0;
     long rand;
+    int deadEnds=0;
     int solutionTreeLimit=0;
     int availableNeighbours=0;
     int historyStackIndexBest=0;
@@ -77,6 +78,7 @@ public class jebbyMaze extends ApplicationAdapter {
     createSpace();
     fieldMatrix[1][1]=2;
     while (isFieldComplete(mazeLenX,mazeLenY) && interations<4000) {
+      //printMatrix(mazeLenX,mazeLenY);
       System.out.println("====================");
       rand = Math.round((Math.random() * 3) + 1);
       System.out.println(rand + " rand");
@@ -89,7 +91,6 @@ public class jebbyMaze extends ApplicationAdapter {
       interations++;
       availableNeighbours=hasEmptyNeighbour(matrixYPosition,matrixXPosition,mazeLenX,mazeLenY);
       System.out.println(availableNeighbours + "  availableNeighbours");
-      
       // Log the highest point on the stack
       if (historyStackIndex > historyStackIndexBest) {
         historyStackIndexBest = historyStackIndex;
@@ -97,7 +98,7 @@ public class jebbyMaze extends ApplicationAdapter {
       if (availableNeighbours != 0) {
         if ((rand==1) && ((availableNeighbours & 1)==1)){ //right
           if (matrixXPosition < (mazeLenX-1)){
-            if (fieldMatrix[matrixYPosition][matrixXPosition+2]==0) {
+            if ((fieldMatrix[matrixYPosition][matrixXPosition+2]==0) || (fieldMatrix[matrixYPosition][matrixXPosition+2]==2)) {
               System.out.println("  Going right");
               fieldMatrix[matrixYPosition][matrixXPosition+2]=2;
               fieldMatrix[matrixYPosition][matrixXPosition+1]=2;
@@ -110,7 +111,7 @@ public class jebbyMaze extends ApplicationAdapter {
         }
         else if ((rand==2) && ((availableNeighbours & 2)==2)){ //left
           if (matrixXPosition > 2){
-            if (fieldMatrix[matrixYPosition][matrixXPosition-2]==0) {
+            if ((fieldMatrix[matrixYPosition][matrixXPosition-2]==0) || (fieldMatrix[matrixYPosition][matrixXPosition-2]==2)) {
               System.out.println("  Going left");
               fieldMatrix[matrixYPosition][matrixXPosition-2]=2;
               fieldMatrix[matrixYPosition][matrixXPosition-1]=2;
@@ -123,7 +124,7 @@ public class jebbyMaze extends ApplicationAdapter {
         }
         else if ((rand==3) && ((availableNeighbours & 4)==4)){ //up
           if (matrixYPosition > 2){
-            if (fieldMatrix[matrixYPosition-2][matrixXPosition]==0) {
+            if ((fieldMatrix[matrixYPosition-2][matrixXPosition]==0) || (fieldMatrix[matrixYPosition-2][matrixXPosition]==2)) {
               System.out.println("  Going up");
               fieldMatrix[matrixYPosition-2][matrixXPosition]=2;
               fieldMatrix[matrixYPosition-1][matrixXPosition]=2;
@@ -136,7 +137,7 @@ public class jebbyMaze extends ApplicationAdapter {
         }
         else if ((rand==4) && ((availableNeighbours & 8)==8)){ //down
           if (matrixXPosition < (mazeLenX-1)){
-            if (fieldMatrix[matrixYPosition+2][matrixXPosition]==0) {
+            if ((fieldMatrix[matrixYPosition+2][matrixXPosition]==0) || (fieldMatrix[matrixYPosition+2][matrixXPosition]==0)) {
               System.out.println("  Going down");
               fieldMatrix[matrixYPosition+2][matrixXPosition]=2;
               fieldMatrix[matrixYPosition+1][matrixXPosition]=2;
@@ -150,7 +151,21 @@ public class jebbyMaze extends ApplicationAdapter {
       }
       else { // else no available neighbours then move the stack pointer
         //if (historyStackIndex > historyStackIndexDec) {
-          historyStackIndex = historyStackIndexDec;
+          deadEnds++;
+          if (deadEnds < 6) {
+            if (historyStackIndex>15){
+              historyStackIndex = historyStackIndex-10;//historyStackIndexDec;
+            }
+            else if (historyStackIndex>2) {
+              historyStackIndex = historyStackIndex/2;
+            }
+            else {
+              historyStackIndex = historyStackIndex-1;
+            }
+          }
+          else if (historyStackIndex>1) {
+            historyStackIndex = historyStackIndex-1;
+          }
         //}
         //else if (historyStackIndex > 1) {
         //  historyStackIndex = historyStackIndex - 1;
@@ -158,7 +173,7 @@ public class jebbyMaze extends ApplicationAdapter {
         //else { //stack index == 1 so set it to the best index seen so far
         //  historyStackIndex = historyStackIndexBest;
           if (historyStackIndexDec > 1) { // reduce the step size to increase granularity to remove more walls
-            historyStackIndexDec = historyStackIndexDec - 1;
+            historyStackIndexDec = historyStackIndexDec/2;
           }
         //}
         System.out.println(historyStackIndex + "  historyStackIndex New");
@@ -261,6 +276,17 @@ public class jebbyMaze extends ApplicationAdapter {
       } 
     }
 	}
+	
+	public void printMatrix(int mazeLenX, int mazeLenY) {
+    for (int y=0;y<mazeLenY-1;y++){
+      System.out.println(" ");
+      for (int x=0;x<mazeLenX-1;x++) {
+      System.out.print(fieldMatrix[y][x]);
+      }
+      
+    }
+	}
+	
 
 	@Override
 	public void render () {
