@@ -298,15 +298,15 @@ public class jebbyMaze extends ApplicationAdapter {
         }
         if (fieldMatrix[y][x] != 1) {
           jukeboxRandom=(Math.round(Math.random() * mazeLenY * mazeLenX));
-          if (jukeboxRandom < ((mazeLenX*mazeLenY)/70)) {
-            //fieldMatrix[y][x]=5;
+          if (jukeboxRandom < ((mazeLenX*mazeLenY)/90)) {
+            fieldMatrix[y][x]=5;
           }
         }
         if ((fieldMatrix[y][x] != 1) && (fieldMatrix[y][x] != 5)) {
           objectRandom=(Math.round(Math.random() * 7));
-          //if (objectRandom==1){fieldMatrix[y][x]=6;}
-          //if (objectRandom==2){fieldMatrix[y][x]=7;}
-          //if (objectRandom==3){fieldMatrix[y][x]=8;}
+          if (objectRandom==1){fieldMatrix[y][x]=6;}
+          if (objectRandom==2){fieldMatrix[y][x]=7;}
+          if (objectRandom==3){fieldMatrix[y][x]=8;}
         }
         System.out.print(fieldMatrix[y][x]);
       
