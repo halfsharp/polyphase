@@ -19,10 +19,18 @@ public class jebbyMaze extends ApplicationAdapter {
 	Sprite sprite;
 	Sprite sprite2;
 	Sprite sprite3;
+	Sprite jukeboxSprite;
+	Sprite amitySprite;
+	Sprite dadSprite;
+	Sprite laikaSprite;
 	World world;
 	Texture img;
 	Texture img2;
 	Texture img3;
+	Texture jukeboxImg;
+	Texture amityImg;
+	Texture dadImg;
+	Texture laikaImg;
 	Body body;
 	Body body2;
 	long frameIdDelta = 0;
@@ -34,7 +42,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	int xPosPrev;
 	int yPosPrev;
   int direction=1;
-  int mazeDifficulty=10; // maze size really
+  int mazeDifficulty=30; // maze size really
   int mazeSize=(mazeDifficulty*2)+1;
 	int[][] fieldMatrix = new int[mazeSize][mazeSize];
     int[] xHistory = new int [1000];
@@ -50,9 +58,17 @@ public class jebbyMaze extends ApplicationAdapter {
         img3 = new Texture("archie.jpg");
         img2 = new Texture("jeb_cropped.jpg");
         img = new Texture("wall1.jpg");
+        jukeboxImg = new Texture("jukeboxR.jpg");
+        amityImg = new Texture("amity.jpg");
+        dadImg = new Texture("dad.jpg");
+        laikaImg = new Texture("laika.jpg");
         sprite = new Sprite(img);
         sprite2 = new Sprite(img2);
         sprite3 = new Sprite(img3);
+        jukeboxSprite = new Sprite(jukeboxImg);
+        amitySprite = new Sprite(amityImg);
+        dadSprite = new Sprite(dadImg);
+        laikaSprite = new Sprite(laikaImg);
  		
         createMaze();
         world = new World(new Vector2(0, 0), true);
@@ -83,7 +99,10 @@ public class jebbyMaze extends ApplicationAdapter {
     int availableNeighbours=0;
     int historyStackIndexBest=0;
     int doRand=0;
+    long jukeboxRandom=0;
+    long objectRandom=0;
     int mazeComplete=0;
+    int fakeIteration=0;
     int historyStackIndexDec=3; // this dictates how far back through the stack to go when reaching a dead end. The larger, the more tricky the maze
     mazeLenY=fieldMatrix.length;
     mazeLenX=fieldMatrix[0].length; 
@@ -96,20 +115,20 @@ public class jebbyMaze extends ApplicationAdapter {
     while (isFieldComplete(mazeLenX,mazeLenY) && interations<4000) {
       //printMatrix(mazeLenX,mazeLenY);
       System.out.println("====================");
-        rand = Math.round((Math.random() * 15) + 1);
+        rand = Math.round((Math.random() * 16) + 1);
         if (rand==1) {rand=1;}
         if (rand==2) {rand=1;}
         if (rand==3) {rand=1;}
         if (rand==4) {rand=1;}
-        if (rand==5) {rand=2;}
+        if (rand==5) {rand=1;}
         if (rand==6) {rand=2;}
         if (rand==7) {rand=2;}
         if (rand==8) {rand=2;}
-        if (rand==9) {rand=3;}
-        if (rand==10) {rand=3;}
+        if (rand==9) {rand=2;}
+        if (rand==10) {rand=2;}
         if (rand==11) {rand=3;}
         if (rand==12) {rand=3;}
-        if (rand==13) {rand=4;}
+        if (rand==13) {rand=3;}
         if (rand==14) {rand=4;}
         if (rand==15) {rand=4;}
         if (rand==16) {rand=4;}
@@ -138,7 +157,7 @@ public class jebbyMaze extends ApplicationAdapter {
       if (historyStackIndex > historyStackIndexBest) {
         historyStackIndexBest = historyStackIndex;
       }
-      if (availableNeighbours != 0) {
+      if ((availableNeighbours != 0) && fakeIteration<10) {
         if ((rand==1) && ((availableNeighbours & 1)==1)){ //right
           if (matrixXPosition < (mazeLenX-1)){
             if ((fieldMatrix[matrixYPosition][matrixXPosition+2]==0) || (fieldMatrix[matrixYPosition][matrixXPosition+2]==2)) {
@@ -149,11 +168,7 @@ public class jebbyMaze extends ApplicationAdapter {
               yHistory[historyStackIndex]=matrixYPosition;
               matrixXPosition=matrixXPosition+2;
               historyStackIndex++;
-              if (lastMove==rand){lastMoveSame++;}
-              if (lastMoveSame > 3) {
-                forceNext=4;
-                lastMoveSame=0;}
-              lastMove=rand;
+              if (mazeComplete==1){fakeIteration++;}
             }
           }
         }
@@ -168,6 +183,7 @@ public class jebbyMaze extends ApplicationAdapter {
               matrixXPosition=matrixXPosition-2;
               historyStackIndex++;
               lastMove=rand;
+              if (mazeComplete==1){fakeIteration++;}
             }
           }
         }
@@ -182,6 +198,7 @@ public class jebbyMaze extends ApplicationAdapter {
               matrixYPosition=matrixYPosition-2;
               historyStackIndex++;
               lastMove=rand;
+              if (mazeComplete==1){fakeIteration++;}
             }
           }
         }
@@ -196,13 +213,15 @@ public class jebbyMaze extends ApplicationAdapter {
               matrixYPosition=matrixYPosition+2;
               historyStackIndex++;
               lastMove=rand;
+              if (mazeComplete==1){fakeIteration++;}
             }
           }
         }
       }
       else { // else no available neighbours then move the stack pointer
         deadEnds++;
-        if (deadEnds < 6) {
+        fakeIteration=0;
+        if (deadEnds < 40) {
           if (historyStackIndex>15){
             historyStackIndex = historyStackIndex*7/8;//historyStackIndexDec;
           }
@@ -221,7 +240,7 @@ public class jebbyMaze extends ApplicationAdapter {
         }
         System.out.println(historyStackIndex + "  historyStackIndex New");
         System.out.println(deadEnds + "  deadEnds");
-        if (deadEnds==1) {
+        if (deadEnds==1) { // if it's the first dead end the maze has failed (because deadEnds gets set to 1 on success). This code is hilarious
           System.out.println("  FAIL");
           matrixXPosition=1;
           matrixYPosition=1;
@@ -233,8 +252,8 @@ public class jebbyMaze extends ApplicationAdapter {
           availableNeighbours=1;
           createSpace();}
         else{
-        matrixXPosition=xHistory[historyStackIndex-1];
-        matrixYPosition=yHistory[historyStackIndex-1];
+          matrixXPosition=xHistory[historyStackIndex-1];
+          matrixYPosition=yHistory[historyStackIndex-1];
         }
         //break;
 
@@ -274,9 +293,23 @@ public class jebbyMaze extends ApplicationAdapter {
           if ((solutionTreeX[z]==x) && (solutionTreeY[z]==y)) {
             fieldMatrix[y][x]=4;
           }
+
             
         }
-      System.out.print(fieldMatrix[y][x]);
+        if (fieldMatrix[y][x] != 1) {
+          jukeboxRandom=(Math.round(Math.random() * mazeLenY * mazeLenX));
+          if (jukeboxRandom < ((mazeLenX*mazeLenY)/70)) {
+            //fieldMatrix[y][x]=5;
+          }
+        }
+        if ((fieldMatrix[y][x] != 1) && (fieldMatrix[y][x] != 5)) {
+          objectRandom=(Math.round(Math.random() * 7));
+          //if (objectRandom==1){fieldMatrix[y][x]=6;}
+          //if (objectRandom==2){fieldMatrix[y][x]=7;}
+          //if (objectRandom==3){fieldMatrix[y][x]=8;}
+        }
+        System.out.print(fieldMatrix[y][x]);
+      
       }
       
     }
@@ -374,29 +407,29 @@ public class jebbyMaze extends ApplicationAdapter {
         if((Gdx.input.isKeyPressed(Keys.LEFT)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((xPos > 0) && (fieldMatrix[yPos][xPos-1] != 1)) {xPos=xPos-1;}
-                xPos=xPos-1;
+                if ((xPos > 0) && (fieldMatrix[yPos][xPos-1] != 1)) {xPos=xPos-1;}
+                //xPos=xPos-1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.RIGHT)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((xPos < fieldMatrix[0].length-1) && (fieldMatrix[yPos][xPos+1] != 1)) {xPos=xPos+1;}
-                xPos=xPos+1;
+                if ((xPos < fieldMatrix[0].length-1) && (fieldMatrix[yPos][xPos+1] != 1)) {xPos=xPos+1;}
+                //xPos=xPos+1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.UP)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((yPos > 0) && (fieldMatrix[yPos-1][xPos] != 1)) {yPos=yPos-1;}
-                yPos=yPos-1;
+                if ((yPos > 0) && (fieldMatrix[yPos-1][xPos] != 1)) {yPos=yPos-1;}
+                //yPos=yPos-1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.DOWN)) && drawReady) {
             if ((Gdx.graphics.getFrameId() - frameIdDelta) > updateInterval){
                 frameIdDelta = Gdx.graphics.getFrameId();
-                //if ((yPos < fieldMatrix.length-1) && (fieldMatrix[yPos+1][xPos] != 1)) {yPos=yPos+1;}
-                yPos=yPos+1;
+                if ((yPos < fieldMatrix.length-1) && (fieldMatrix[yPos+1][xPos] != 1)) {yPos=yPos+1;}
+                //yPos=yPos+1;
             }
         }
         if((Gdx.input.isKeyPressed(Keys.SPACE)) && drawReady) {
@@ -405,6 +438,28 @@ public class jebbyMaze extends ApplicationAdapter {
                 helper=!helper;
                 //yPos=yPos+1;
             }
+        }
+        if (drawReady) {
+          if (fieldMatrix[yPos][xPos]==5) {
+            System.out.println("jukebox");
+            fieldMatrix[yPos][xPos]=2;
+          }
+          if (fieldMatrix[yPos][xPos]==3) {
+            System.out.println("jukebox");
+            fieldMatrix[yPos][xPos]=2;
+          }
+          if (fieldMatrix[yPos][xPos]==6) {
+            System.out.println("jukebox");
+            fieldMatrix[yPos][xPos]=2;
+          }
+          if (fieldMatrix[yPos][xPos]==7) {
+            System.out.println("jukebox");
+            fieldMatrix[yPos][xPos]=2;
+          }
+          if (fieldMatrix[yPos][xPos]==8) {
+            System.out.println("jukebox");
+            fieldMatrix[yPos][xPos]=2;
+          }
         }
         batch.end();
 	}
@@ -498,6 +553,62 @@ public class jebbyMaze extends ApplicationAdapter {
 	                }
 	                else {
 		                batch.draw(sprite2, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+                    }    	                
+                }
+    			else if ((fieldMatrix[yIndex][xIndex]==5)) {
+    			    if (direction==1){
+		                batch.draw(jukeboxSprite, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+	                }
+    			    else if (direction==2){
+        			    batch.draw(jukeboxSprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())-(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+    			    else if (direction==-2){
+		                batch.draw(jukeboxSprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())+(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+	                else {
+		                batch.draw(jukeboxSprite, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+                    }    	                
+                }
+    			else if ((fieldMatrix[yIndex][xIndex]==6)) {
+    			    if (direction==1){
+		                batch.draw(dadSprite, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+	                }
+    			    else if (direction==2){
+        			    batch.draw(dadSprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())-(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+    			    else if (direction==-2){
+		                batch.draw(dadSprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())+(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+	                else {
+		                batch.draw(dadSprite, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+                    }    	                
+                }
+    			else if ((fieldMatrix[yIndex][xIndex]==7)) {
+    			    if (direction==1){
+		                batch.draw(amitySprite, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+	                }
+    			    else if (direction==2){
+        			    batch.draw(amitySprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())-(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+    			    else if (direction==-2){
+		                batch.draw(amitySprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())+(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+	                else {
+		                batch.draw(amitySprite, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+                    }    	                
+                }
+    			else if ((fieldMatrix[yIndex][xIndex]==8)) {
+    			    if (direction==1){
+		                batch.draw(laikaSprite, ((x)*sprite3.getWidth())+(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
+	                }
+    			    else if (direction==2){
+        			    batch.draw(laikaSprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())-(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+    			    else if (direction==-2){
+		                batch.draw(laikaSprite, ((x)*sprite3.getWidth()), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight())+(subStep*sprite3.getHeight()/(updateInterval+1)));
+	                }
+	                else {
+		                batch.draw(laikaSprite, ((x)*sprite3.getWidth())-(subStep*(sprite3.getWidth()/(updateInterval+1))), Gdx.graphics.getHeight()-((y+1)*sprite3.getHeight()));
                     }    	                
                 }
 			}
