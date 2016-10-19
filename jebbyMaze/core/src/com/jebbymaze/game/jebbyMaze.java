@@ -1,5 +1,5 @@
 package com.jebbymaze.game;
-
+import java.io.File;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
@@ -33,6 +33,8 @@ public class jebbyMaze extends ApplicationAdapter {
 	Texture laikaImg;
 	Body body;
 	Body body2;
+	File musicFolder = new File("music/");
+	File[] musicList = musicFolder.listFiles();
 	long frameIdDelta = 0;
 	int xPos = 1;
 	int yPos = 1;
@@ -44,6 +46,8 @@ public class jebbyMaze extends ApplicationAdapter {
   int direction=1;
   int mazeDifficulty=30; // maze size really
   int mazeSize=(mazeDifficulty*2)+1;
+  int choonID;
+  String choonFileString;
 	int[][] fieldMatrix = new int[mazeSize][mazeSize];
     int[] xHistory = new int [1000];
     int[] yHistory = new int [1000];
@@ -71,10 +75,16 @@ public class jebbyMaze extends ApplicationAdapter {
         laikaSprite = new Sprite(laikaImg);
  		
         createMaze();
+        choonID = (int)(Math.round((Math.random() * musicList.length)));
+    System.out.println("ChoonID:  "+choonID);
+        System.out.println(musicList[0]);
+        for (int i=0;i<musicList.length-1;i++) {System.out.println(musicList[i]);}
         world = new World(new Vector2(0, 0), true);
-        //rainMusic = Gdx.audio.newMusic(Gdx.files.internal("09 Home.mp3"));
-        //rainMusic.setLooping(true);
-        //rainMusic.play();
+        choonFileString=musicList[choonID].toString();
+        System.out.println("music is: "+choonFileString);
+        rainMusic = Gdx.audio.newMusic(Gdx.files.internal(choonFileString));
+        rainMusic.setLooping(true);
+        rainMusic.play();
 	}
 	
 	public void createMaze(){
@@ -385,6 +395,16 @@ public class jebbyMaze extends ApplicationAdapter {
     }
 	}
 	
+	public void changeMusic() {
+    rainMusic.stop();
+    choonID = (int)(Math.round((Math.random() * musicList.length)));
+    System.out.println("ChoonID:  "+choonID);
+    choonFileString=musicList[choonID].toString();
+  	rainMusic = Gdx.audio.newMusic(Gdx.files.internal(choonFileString));
+    rainMusic.setLooping(true);
+    rainMusic.play();
+  }
+	
 
 	@Override
 	public void render () {
@@ -443,6 +463,7 @@ public class jebbyMaze extends ApplicationAdapter {
           if (fieldMatrix[yPos][xPos]==5) {
             System.out.println("jukebox");
             fieldMatrix[yPos][xPos]=2;
+            changeMusic();
           }
           if (fieldMatrix[yPos][xPos]==3) {
             System.out.println("jukebox");
