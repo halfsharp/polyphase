@@ -44,7 +44,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	int xPosPrev;
 	int yPosPrev;
   int direction=1;
-  int mazeDifficulty=30; // maze size really
+  int mazeDifficulty=56; // maze size really
   int mazeSize=(mazeDifficulty*2)+1;
   int choonID;
   String choonFileString;
@@ -75,12 +75,12 @@ public class jebbyMaze extends ApplicationAdapter {
         laikaSprite = new Sprite(laikaImg);
  		
         createMaze();
-        choonID = (int)(Math.round((Math.random() * musicList.length)));
-    System.out.println("ChoonID:  "+choonID);
+        choonID = (int)(Math.round((Math.random() * (musicList.length-1))));
         System.out.println(musicList[0]);
         for (int i=0;i<musicList.length-1;i++) {System.out.println(musicList[i]);}
         world = new World(new Vector2(0, 0), true);
-        choonFileString=musicList[choonID].toString();
+     System.out.println("ChoonID:  "+choonID);
+       choonFileString=musicList[choonID].toString();
         System.out.println("music is: "+choonFileString);
         rainMusic = Gdx.audio.newMusic(Gdx.files.internal(choonFileString));
         rainMusic.setLooping(true);
@@ -308,7 +308,7 @@ public class jebbyMaze extends ApplicationAdapter {
         }
         if (fieldMatrix[y][x] != 1) {
           jukeboxRandom=(Math.round(Math.random() * mazeLenY * mazeLenX));
-          if (jukeboxRandom < ((mazeLenX*mazeLenY)/90)) {
+          if (jukeboxRandom < ((mazeLenX*mazeLenY)/300)) {
             fieldMatrix[y][x]=5;
           }
         }
@@ -397,7 +397,7 @@ public class jebbyMaze extends ApplicationAdapter {
 	
 	public void changeMusic() {
     rainMusic.stop();
-    choonID = (int)(Math.round((Math.random() * musicList.length)));
+    choonID = (int)(Math.round((Math.random() * (musicList.length-1))));
     System.out.println("ChoonID:  "+choonID);
     choonFileString=musicList[choonID].toString();
   	rainMusic = Gdx.audio.newMusic(Gdx.files.internal(choonFileString));
